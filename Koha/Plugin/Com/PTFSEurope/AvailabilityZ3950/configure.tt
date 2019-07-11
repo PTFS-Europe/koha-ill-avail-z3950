@@ -1,0 +1,82 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha: Availability z39.50 Plugin: Configuration</title>
+<link rel="stylesheet" type="text/css" href="[% PLUGIN_PATH %]/illavailability.css"></link>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; ILL availability z39.50 &rsaquo; Configuration</div>
+
+<div id="doc3">
+    <h3 id="ill_avail_config_h3">Koha: ILL availability z39.50: Configuration</h3>
+
+    <h4>Available z39.50 targets</h4>
+
+    <p>Select targets you wish you make available for availability searching</p>
+
+    <form id="ill_avail_configure" method="get">
+        <input type="hidden" name="class" value="[% CLASS %]"/>
+        <input type="hidden" name="method" value="[% METHOD %]"/>
+        <ul>
+        [% FOREACH target IN targets %]
+            [% target_id = target.id %]
+            <li class="ill_avail_target_list">
+                [% target_name = "target_select_$target_id" %]
+                [% IF config.$target_name %]
+                    <input type="checkbox" name="target_select_[% target_id %]" value="[% target_id %]" checked>
+                [% ELSE %]
+                    <input type="checkbox" name="target_select_[% target_id %]" value="[% target_id %]">
+                [% END %]
+                <h4 class="ill_avail_target_name">[% target.servername %]</h4>
+                <div id="ill_avail_config_[% target_id %]">
+                    [% bibid_name = "ill_avail_config_bibid_$target_id" %]
+                    [% link_name = "ill_avail_config_link_$target_id" %]
+                    <div id="ill_avail_field">
+                        <label for="[% bibid_name %]">Field / subfield for bib ID: </label><input placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
+                        <p>This field / subfield combination must be present in the z39.50 response</p>
+                    </div>
+                    <div id="ill_avail_link">
+                        <label for="[% link_name %]">Deep link to catalogue record: </label><input placeholder="https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id" id="ill_avail_link_input" type="text" name="[% link_name %]" value="[% config.$link_name %]">
+                        <p>This field enables the result to display links to the catalogue for each result. The "source_record_id" should be present where the bib ID would ordinarily be displayed in the URL. e.g. https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id</p>
+                    </div>
+                </div>
+            </li>
+        [% END %]
+        </ul>
+        <input type="hidden" name="save" value="1" />
+        <input type="submit" value="Save configuration" />
+    </form>
+
+    <hr/>
+
+    <div>
+        <h5>Upgrade status</h5>
+        [% IF last_upgraded %]
+            Plugin was last upgraded on this system on [% last_upgraded | $KohaDates with_hours => 1 %]
+        [% ELSE %]
+            Plugin has never been upgraded.
+        [% END %]
+    </div>
+
+    <script>
+        $(".ill_avail_target_list").each(function() {
+            var el = $(this);
+            var input = el.find("[name*=target_select]");
+            if (!input.is(':checked')) {
+                el.find("[id^=ill_avail_config_]").hide();
+            }
+        });
+        $("input[name*='target_select']").on('click', function() {
+            var container = $('#ill_avail_config_'+$(this).attr('value'));
+            if ($(this).prop('checked')) {
+                container.show();
+            } else {
+                container.hide();
+                container.find('input').val('');
+            }
+        });
+    </script>
+
+[% INCLUDE 'intranet-bottom.inc' %]
