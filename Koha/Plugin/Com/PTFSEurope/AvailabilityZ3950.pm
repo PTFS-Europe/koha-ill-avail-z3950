@@ -110,7 +110,7 @@ sub ill_availability_services {
 sub get_selected_z_target_ids {
     my ($self) = @_;
 
-    my $config = decode_json($self->retrieve_data('avail_config'));
+    my $config = decode_json($self->retrieve_data('avail_config') || '{}');
     my @ids = ();
     foreach my $key(%{$config}) {
         if ($key=~/^target_select_/) {
