@@ -137,14 +137,20 @@ sub search {
     );
 }
 
+# Given a result, get the ID of the corresponding server
+sub get_server_id {
+    my ( $result, $servers ) = @_;
+    # First identify the server based on it's name in the result
+    my $server_name = $result->{server};
+    my ($server) = grep { $_->servername eq $server_name } @{$servers};
+    return $server->id;
+}
+
 # Given a result, using the result's target config try and get the
 # source's bib id and add it to the result
 sub get_result_id {
     my ( $result, $servers, $config ) = @_;
-    # First identify the server based on it's name in the result
-    my $server_name = $result->{server};
-    my ($server) = grep { $_->servername eq $server_name } @{$servers};
-    my $server_id = $server->id;
+    my $server_id = get_server_id($result, $servers);
     my $bib_field = $config->{"ill_avail_config_bibid_${server_id}"};
     if ($bib_field) {
         my $bib_id = $result->{$bib_field};
@@ -161,10 +167,7 @@ sub get_result_id {
 # to the record's bib
 sub get_result_url {
     my ( $result, $servers, $config ) = @_;
-    # First identify the server based on it's name in the result
-    my $server_name = $result->{server};
-    my ($server) = grep { $_->servername eq $server_name } @{$servers};
-    my $server_id = $server->id;
+    my $server_id = get_server_id($result, $servers);
     my $link_field = $config->{"ill_avail_config_link_${server_id}"};
     if ($link_field && $result->{source_record_id}) {
         $link_field =~ s/source_record_id/$result->{source_record_id}/g;
