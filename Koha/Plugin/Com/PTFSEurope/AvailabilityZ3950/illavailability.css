@@ -18,10 +18,12 @@ div[id^="ill_avail_config_"] {
     margin-top: 20px;
 }
 
-div#ill_avail_field {
+div#ill_avail_field,
+div#ill_avail_link {
     margin-bottom: 20px;
 }
 
-input#ill_avail_link_input {
+input#ill_avail_link_input,
+input#ill_avail_opac_input {
     min-width: 500px;
 }

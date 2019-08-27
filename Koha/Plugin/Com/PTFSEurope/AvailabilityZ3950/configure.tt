@@ -32,6 +32,7 @@
                 <h4 class="ill_avail_target_name">[% target.servername %]</h4>
                 <div id="ill_avail_config_[% target_id %]">
                     [% bibid_name = "ill_avail_config_bibid_$target_id" %]
+                    [% opac_name = "ill_avail_config_opac_$target_id" %]
                     [% link_name = "ill_avail_config_link_$target_id" %]
                     <div id="ill_avail_field">
                         <label for="[% bibid_name %]">Field / subfield for bib ID: </label><input placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
@@ -40,6 +41,10 @@
                     <div id="ill_avail_link">
                         <label for="[% link_name %]">Deep link to catalogue record: </label><input placeholder="https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id" id="ill_avail_link_input" type="text" name="[% link_name %]" value="[% config.$link_name %]">
                         <p>This field enables the result to display links to the catalogue for each result. The "source_record_id" should be present where the bib ID would ordinarily be displayed in the URL. e.g. https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id</p>
+                    </div>
+                    <div id="ill_avail_opac">
+                        <label for="[% opac_name %]">OPAC URL: </label><input placeholder="https://mykoha.com" id="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
+                        <p>The URL of the target's OPAC, this is used in the event that a deep link to a result cannot be created</p>
                     </div>
                 </div>
             </li>

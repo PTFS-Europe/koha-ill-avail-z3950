@@ -111,10 +111,13 @@ sub search {
         get_result_id($result, $servers, $config);
         # Now we try and populate a 'source_record_url' field in each result
         get_result_url($result, $servers, $config);
+        # Now we try and populate an 'opac_url' field in each result
+        get_opac_url($result, $servers, $config);
         push @{$to_send}, {
             title  => $result->{title},
             author => $result->{author},
             url    => $result->{url},
+            opac_url => $result->{opac_url},
             isbn   => $result->{isbn},
             issn   => $result->{issn},
             source => $result->{server},
@@ -172,6 +175,17 @@ sub get_result_url {
     if ($link_field && $result->{source_record_id}) {
         $link_field =~ s/source_record_id/$result->{source_record_id}/g;
         $result->{url} = $link_field;
+    }
+    return $result;
+}
+
+# Given a result, get the result's corresponding OPAC URL
+sub get_opac_url {
+    my ( $result, $servers, $config ) = @_;
+    my $server_id = get_server_id($result, $servers);
+    my $opac = $config->{"ill_avail_config_opac_${server_id}"};
+    if ($opac) {
+        $result->{opac_url} = $opac;
     }
     return $result;
 }
