@@ -58,26 +58,29 @@ sub search {
         page         => $page,
     };
 
+    # Ensure we're using predictable metadata property names
+    my %lookup = map {(lc $_, $metadata->{$_})} keys %{$metadata};
+
     # Based on the metadata we've been passed, establish what gives us the
     # best chance of success.
     # NOTE: This logic needs to be kept in sync with a list of properties
     # in AvailabilityZ3950.pm
-    if ($metadata->{isbn} || $metadata->{issn}) {
-        if ($metadata->{isbn}) {
-            $pars->{isbn} = $metadata->{isbn};
-        } elsif ($metadata->{issn}) {
-            $pars->{issn} = $metadata->{issn};
+    if ($lookup{isbn} || $lookup{issn}) {
+        if ($lookup{isbn}) {
+            $pars->{isbn} = $lookup{isbn};
+        } elsif ($lookup{issn}) {
+            $pars->{issn} = $lookup{issn};
         }
     } elsif (
-        $metadata->{title} ||
-        $metadata->{container_title} ||
-        $metadata->{container_author} ||
-        $metadata->{author}
+        $lookup{title} ||
+        $lookup{container_title} ||
+        $lookup{container_author} ||
+        $lookup{author}
     ) {
-        $pars->{title} = $metadata->{container_title} || $metadata->{title}
-            if $metadata->{container_title} || $metadata->{title};
-        $pars->{author} = $metadata->{container_author} || $metadata->{author}
-            if $metadata->{container_author} || $metadata->{author};
+        $pars->{title} = $lookup{container_title} || $lookup{title}
+            if $lookup{container_title} || $lookup{title};
+        $pars->{author} = $lookup{container_author} || $lookup{author}
+            if $lookup{container_author} || $lookup{author};
     } else {
         return $c->render(
             status => 200,
