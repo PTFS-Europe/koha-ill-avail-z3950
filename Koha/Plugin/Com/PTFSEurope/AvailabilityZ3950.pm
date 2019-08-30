@@ -63,14 +63,14 @@ sub ill_availability_services {
         'title',
         'author'
     ];
+    
+    # Ensure we're working with predictable metadata property keys
+    my %lookup = map {(lc $_, $search_metadata->{$_})} keys %{$search_metadata};
 
     # Establish if we can service this item
     my $can_service = 0;
     foreach my $property(@{$properties}) {
-        if (
-            $search_metadata->{$property} &&
-            length $search_metadata->{$property} > 0
-        ) {
+        if ( $lookup{$property} && length $lookup{$property} > 0 ) {
             $can_service++;
         }
     }
