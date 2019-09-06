@@ -1,5 +1,5 @@
 #ill_avail_config_h3 {
-    margin-bottom: 20px;
+    margin: 20px;
 }
 
 li.ill_avail_target_list {
@@ -8,6 +8,15 @@ li.ill_avail_target_list {
     background: #eee;
     border-radius: 10px;
     list-style: none;
+}
+
+#ill_avail_configure {
+	display: block;
+	margin: 20px;
+}
+
+#ill_avail_configure ul {
+	padding-left: 0;
 }
 
 h4.ill_avail_target_name {
@@ -19,7 +28,8 @@ div[id^="ill_avail_config_"] {
 }
 
 div#ill_avail_field,
-div#ill_avail_link {
+div#ill_avail_link,
+div#ill_avail_opac {
     margin-bottom: 20px;
 }
 
@@ -27,3 +37,8 @@ input#ill_avail_link_input,
 input#ill_avail_opac_input {
     min-width: 500px;
 }
+
+#ill_avail_upgrade {
+    margin: 20px;
+}
+

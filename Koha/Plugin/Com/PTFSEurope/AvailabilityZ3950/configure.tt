@@ -12,11 +12,10 @@
 <div id="doc3">
     <h3 id="ill_avail_config_h3">Koha: ILL availability z39.50: Configuration</h3>
 
-    <h4>Available z39.50 targets</h4>
-
-    <p>Select targets you wish you make available for availability searching</p>
 
     <form id="ill_avail_configure" method="get">
+        <h4>Available z39.50 targets</h4>
+        <p>Select targets you wish you make available for availability searching</p>
         <input type="hidden" name="class" value="[% CLASS %]"/>
         <input type="hidden" name="method" value="[% METHOD %]"/>
         <ul>
@@ -32,8 +31,9 @@
                 <h4 class="ill_avail_target_name">[% target.servername %]</h4>
                 <div id="ill_avail_config_[% target_id %]">
                     [% bibid_name = "ill_avail_config_bibid_$target_id" %]
-                    [% opac_name = "ill_avail_config_opac_$target_id" %]
-                    [% link_name = "ill_avail_config_link_$target_id" %]
+                    [% opac_name  = "ill_avail_config_opac_$target_id" %]
+                    [% link_name  = "ill_avail_config_link_$target_id" %]
+                    [% partner_id = "ill_avail_config_partner_$target_id" %]
                     <div id="ill_avail_field">
                         <label for="[% bibid_name %]">Field / subfield for bib ID: </label><input placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
                         <p>This field / subfield combination must be present in the z39.50 response</p>
@@ -46,6 +46,10 @@
                         <label for="[% opac_name %]">OPAC URL: </label><input placeholder="https://mykoha.com" id="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
                         <p>The URL of the target's OPAC, this is used in the event that a deep link to a result cannot be created</p>
                     </div>
+                    <div id="ill_avail_partner">
+                        <label for="[% partner_id %]">Partner ID: </label><input placeholder="e.g. 15" id="ill_avail_partner_input" type="text" name="[% partner_id %]" value="[% config.$partner_id %]">
+                        <p>If this target is associated with a borrower (for partner requests) enter the borrower ID here</p>
+                    </div>
                 </div>
             </li>
         [% END %]
@@ -56,7 +60,7 @@
 
     <hr/>
 
-    <div>
+    <div id="ill_avail_upgrade">
         <h5>Upgrade status</h5>
         [% IF last_upgraded %]
             Plugin was last upgraded on this system on [% last_upgraded | $KohaDates with_hours => 1 %]
