@@ -13,6 +13,13 @@
                     "type": "string"
                 },
                 {
+                    "name": "restrict",
+                    "in": "query",
+                    "description": "A pipe separated list of Z target IDs to search",
+                    "required": false,
+                    "type": "string"
+                },
+                {
                     "name": "start",
                     "in": "query",
                     "description": "Pagination: the record to start",

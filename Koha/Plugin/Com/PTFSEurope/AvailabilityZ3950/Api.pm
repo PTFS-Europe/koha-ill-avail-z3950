@@ -20,6 +20,7 @@ use Modern::Perl;
 use JSON qw( decode_json );
 use MIME::Base64 qw( decode_base64 );
 use URI::Escape qw ( uri_unescape );
+use List::Util qw ( any );
 use POSIX;
 
 use Mojo::Base 'Mojolicious::Controller';
@@ -34,19 +35,49 @@ sub search {
 
     # Gather together what we've been passed
     my $metadata = $c->validation->param('metadata') || '';
+    my $partners = $c->validation->param('restrict') || '';
     my $start = $c->validation->param('start') || 0;
     my $length = $c->validation->param('length') || 20;
     $metadata = decode_json(decode_base64(uri_unescape($metadata)));
 
-    # Get details of the servers we're dealing with and config
+    # Get details of the servers we could potentially be using
+    # i.e. those that have been selected in the plugin config
+    # We also get the config for later lookups
     my $plugin = Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950->new();
     my $selected = $plugin->get_selected_z_target_ids();
     my $config = $plugin->retrieve_data('avail_config');
     $config = $config ? decode_json($config) : {};
 
-    my $servers = get_z_targets($selected);
-    my @ids = map { $_->id } @{$servers};
-    my $servers_queried = scalar @ids;
+    # Now we have the IDs of all targets we can potentially use,
+    # we might want to limit down by parters IDs we've been passed
+    # (which may have a target associated with them)
+    my @passed_partners = split(/\|/, $partners);
+    # Any values we've been passed are borrower IDs, we need to look up
+    # the corresponding target ID, if there is one. This mapping is
+    # defined in the plugin config.
+    my @targets_to_search = ();
+    if (scalar @passed_partners > 0) {
+        # Iterate the plugin config keys
+        foreach my $key(keys %{$config}) {
+            if (
+                # If this is a key defining a mapping to a partner ID
+                $key =~ /^ill_avail_config_partner_(\d+)$/ &&
+                # and the value is in the list of partner IDs
+                # we've been passed
+                any { /$config->{$key}/ } @passed_partners
+            ) {
+                # We can search it
+                push @targets_to_search, $1;
+            }
+        }
+    } else {
+        # We weren't passed any partners, so we just use all targets
+        # selected in the plugin config
+        @targets_to_search = @{$selected};
+    }
+
+    # Now get the full details of each target
+    my $servers = get_z_targets(\@targets_to_search);
 
     # Try and calculate what page we're on
     my $page = $start == 0 ? 1 : floor($start / $length) + 1;
@@ -54,7 +85,7 @@ sub search {
     # The parameters we're going to use for Z searching
     my $pars= {
         biblionumber => 0,
-        id           => \@ids,
+        id           => \@targets_to_search,
         page         => $page,
     };
 
@@ -92,8 +123,6 @@ sub search {
             }
         );
     }
-
-
 
     # C4::Breeding::Z3950Search expects to be passed a template (into the
     # params of which it inserts the response details), so we mock on
@@ -194,7 +223,7 @@ sub get_opac_url {
 }
 
 sub get_z_targets {
-    my ( $ids) = @_;
+    my ( $ids ) = @_;
 
     my $where = $ids ? { id => $ids } : {};
     # Get the details of the servers we're querying
