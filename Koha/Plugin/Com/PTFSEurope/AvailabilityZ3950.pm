@@ -58,8 +58,8 @@ sub ill_availability_services {
     my $properties = [
         'isbn',
         'issn',
-        'article_title',
-        'article_author',
+        'container_title',
+        'container_author',
         'title',
         'author'
     ];
