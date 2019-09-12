@@ -34,17 +34,18 @@ sub search {
     my $c = shift->openapi->valid_input or return;
 
     # Gather together what we've been passed
-    my $metadata = $c->validation->param('metadata') || '';
-    my $partners = $c->validation->param('restrict') || '';
-    my $start = $c->validation->param('start') || 0;
-    my $length = $c->validation->param('length') || 20;
-    $metadata = decode_json(decode_base64(uri_unescape($metadata)));
+    my $metadata    = $c->validation->param('metadata') || '';
+    my $ui_context  = $c->validation->param('ui_context') || '';
+    my $partners    = $c->validation->param('restrict') || '';
+    my $start       = $c->validation->param('start') || 0;
+    my $pageLength  = $c->validation->param('pageLength') || 20;
+    $metadata       = decode_json(decode_base64(uri_unescape($metadata)));
 
     # Get details of the servers we could potentially be using
     # i.e. those that have been selected in the plugin config
     # We also get the config for later lookups
     my $plugin = Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950->new();
-    my $selected = $plugin->get_selected_z_target_ids();
+    my $available_targets = $plugin->get_available_z_target_ids($ui_context);
     my $config = $plugin->retrieve_data('avail_config');
     $config = $config ? decode_json($config) : {};
 
@@ -57,14 +58,16 @@ sub search {
     # defined in the plugin config.
     my @targets_to_search = ();
     if (scalar @passed_partners > 0) {
-        # Iterate the plugin config keys
-        foreach my $key(keys %{$config}) {
+        # Iterate the targets that are available to us
+        foreach my $available_target(@{$available_targets}) {
+            my $config_key = "ill_avail_config_partner_$available_target";
+            # Check if the config contains a partner mapping for this target
             if (
                 # If this is a key defining a mapping to a partner ID
-                $key =~ /^ill_avail_config_partner_(\d+)$/ &&
                 # and the value is in the list of partner IDs
                 # we've been passed
-                any { /$config->{$key}/ } @passed_partners
+                $config->{$config_key} &&
+                any { /$config->{$config_key}/ } @passed_partners
             ) {
                 # We can search it
                 push @targets_to_search, $1;
@@ -72,15 +75,15 @@ sub search {
         }
     } else {
         # We weren't passed any partners, so we just use all targets
-        # selected in the plugin config
-        @targets_to_search = @{$selected};
+        # available according to the plugin config
+        @targets_to_search = @{$available_targets};
     }
 
     # Now get the full details of each target
     my $servers = get_z_targets(\@targets_to_search);
 
     # Try and calculate what page we're on
-    my $page = $start == 0 ? 1 : floor($start / $length) + 1;
+    my $page = $start == 0 ? 1 : floor($start / $pageLength) + 1;
 
     # The parameters we're going to use for Z searching
     my $pars= {

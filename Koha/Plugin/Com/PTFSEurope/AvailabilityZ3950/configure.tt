@@ -33,7 +33,10 @@
                     [% bibid_name = "ill_avail_config_bibid_$target_id" %]
                     [% opac_name  = "ill_avail_config_opac_$target_id" %]
                     [% link_name  = "ill_avail_config_link_$target_id" %]
-                    [% partner_id = "ill_avail_config_partner_$target_id" %]
+                    [% partner_id = "ill_avail_config_partners_$target_id" %]
+                    [% display_opac = "ill_avail_config_display_opac_$target_id" %]
+                    [% display_staff = "ill_avail_config_display_staff_$target_id" %]
+                    [% display_partner = "ill_avail_config_display_partners_$target_id" %]
                     <div id="ill_avail_field">
                         <label for="[% bibid_name %]">Field / subfield for bib ID: </label><input placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
                         <p>This field / subfield combination must be present in the z39.50 response</p>
@@ -49,6 +52,33 @@
                     <div id="ill_avail_partner">
                         <label for="[% partner_id %]">Partner ID: </label><input placeholder="e.g. 15" id="ill_avail_partner_input" type="text" name="[% partner_id %]" value="[% config.$partner_id %]">
                         <p>If this target is associated with a borrower (for partner requests) enter the borrower ID here</p>
+                    </div>
+                    <div id="ill_avail_display_opac">
+                        <label for="[% display_opac %]">Display results in OPAC: </label>
+                        [% IF config.$display_opac %]
+                            <input type="checkbox" id="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]" checked>
+                        [% ELSE %]
+                            <input type="checkbox" id="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]">
+                        [% END %]
+                        <p>Should results from this target be displayed when a user in the OPAC initiates request creation?</p>
+                    </div>
+                    <div id="ill_avail_display_staff">
+                        <label for="[% display_staff %]">Display results in staff interface: </label>
+                        [% IF config.$display_staff %]
+                            <input type="checkbox" id="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]" checked>
+                        [% ELSE %]
+                            <input type="checkbox" id="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]">
+                        [% END %]
+                        <p>Should results from this target be displayed when a staff member initiates request creation?</p>
+                    </div>
+                    <div id="ill_avail_display_partner">
+                        <label for="[% display_partner %]">Display results when making partner requests: </label>
+                        [% IF config.$display_partner %]
+                            <input type="checkbox" id="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]" checked>
+                        [% ELSE %]
+                            <input type="checkbox" id="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]">
+                        [% END %]
+                        <p>Should results from this target be displayed when staff member is about to place a request with partners?</p>
                     </div>
                 </div>
             </li>

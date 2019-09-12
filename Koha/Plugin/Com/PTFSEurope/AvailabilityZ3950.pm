@@ -50,7 +50,7 @@ sub new {
 # Recieve a hashref containing the submitted metadata
 # and, if we can work with it, return a hashref of our service definition
 sub ill_availability_services {
-    my ($self, $search_metadata) = @_;
+    my ($self, $params) = @_;
 
     # A list of metadata properties we're interested in
     # NOTE: This list needs to be kept in sync with a similar list in
@@ -65,7 +65,10 @@ sub ill_availability_services {
     ];
     
     # Ensure we're working with predictable metadata property keys
-    my %lookup = map {(lc $_, $search_metadata->{$_})} keys %{$search_metadata};
+    my $metadata = $params->{metadata};
+    my %lookup = map {(
+        lc $_, $metadata->{$_}
+    )} keys %{$metadata};
 
     # Establish if we can service this item
     my $can_service = 0;
@@ -76,16 +79,14 @@ sub ill_availability_services {
     }
 
     # Check we have at least one Z target we can use
-    my $ids = $self->get_selected_z_target_ids();
-    my $targets = Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950::Api::get_z_targets($ids);
-    my $target_count = scalar @{$targets};
-    $can_service++ if $target_count > 0;
+    my $ids = $self->get_available_z_target_ids($params->{ui_context});
 
     # Bail out if we can't do anything with this request
-    return 0 if $can_service == 0;
+    return 0 if scalar @{$ids} == 0;
 
     my $endpoint = '/api/v1/contrib/' . $self->api_namespace .
-        '/ill_availability_search_z3950?metadata=';
+        '/ill_availability_search_z3950?ui_context=' .
+        $params->{ui_context} . '&metadata=';
 
     return {
         # Our service should have a reasonably unique ID
@@ -107,17 +108,24 @@ sub ill_availability_services {
     };
 }
 
-sub get_selected_z_target_ids {
-    my ($self) = @_;
+sub get_available_z_target_ids {
+    my ($self, $ui_context) = @_;
 
+    # Receive a display context and iterate through the plugin's config
+    # looking for targets that have been both selected and enabled in
+    # this context
     my $config = decode_json($self->retrieve_data('avail_config') || '{}');
-    my @ids = ();
+    my %id_hash = ();
     foreach my $key(%{$config}) {
-        if ($key=~/^target_select_/) {
-            push @ids, $config->{$key};
+        if (
+            $key=~/^target_select_/ ||
+            $key=~/^ill_avail_config_display_${ui_context}_/
+        ) {
+            $id_hash{$config->{$key}}++;
         }
     }
-    return \@ids;
+    my @id_arr = map { $id_hash{$_} == 2 ? $_ : () } keys %id_hash;
+    return \@id_arr;
 }
 
 sub api_routes {
