@@ -60,7 +60,7 @@ sub search {
     if (scalar @passed_partners > 0) {
         # Iterate the targets that are available to us
         foreach my $available_target(@{$available_targets}) {
-            my $config_key = "ill_avail_config_partner_$available_target";
+            my $config_key = "ill_avail_config_partners_$available_target";
             # Check if the config contains a partner mapping for this target
             if (
                 # If this is a key defining a mapping to a partner ID
@@ -70,7 +70,7 @@ sub search {
                 any { /$config->{$config_key}/ } @passed_partners
             ) {
                 # We can search it
-                push @targets_to_search, $1;
+                push @targets_to_search, $available_target;
             }
         }
     } else {
