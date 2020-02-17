@@ -18,6 +18,10 @@
         <p>Select targets you wish you make available for availability searching</p>
         <input type="hidden" name="class" value="[% CLASS %]"/>
         <input type="hidden" name="method" value="[% METHOD %]"/>
+        <div id="ill_avail_z3950_name" class="ill_avail_config_field">
+            <label for="ill_avail_name_input">Display name: </label><input id="ill_avail_name_input" placeholder="ILL availability - z39.50" type="text" name="ill_avail_z3950_name" value="[% config.ill_avail_z3950_name || "ILL availability - z39.50" %]">
+            <p>The text that is displayed in the user interface above search results from z39.50 targets</p>
+        </div>
         <ul>
         [% FOREACH target IN targets %]
             [% target_id = target.id %]

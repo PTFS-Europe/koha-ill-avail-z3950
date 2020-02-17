@@ -2,6 +2,14 @@
     margin: 20px;
 }
 
+.ill_avail_config_field {
+	padding: 20px 10px;
+	margin: 20px 0;
+	background: #eee;
+	border-radius: 10px;
+	list-style: none;
+}
+
 li.ill_avail_target_list {
     padding: 20px 10px;
     margin: 20px 0;

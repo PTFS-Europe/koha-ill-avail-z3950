@@ -97,6 +97,7 @@ sub ill_availability_services {
         ),
         plugin     => $self->{metadata}->{name},
         endpoint   => $endpoint,
+        name       => $self->get_name(),
         datatablesConfig => {
             serverSide   => 'true',
             processing   => 'true',
