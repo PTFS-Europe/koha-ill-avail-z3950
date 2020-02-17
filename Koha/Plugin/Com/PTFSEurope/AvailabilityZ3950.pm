@@ -43,6 +43,7 @@ sub new {
     my $self = $class->SUPER::new($args);
 
     $self->{schema} = Koha::Database->new()->schema();
+    $self->{config} = decode_json($self->retrieve_data('avail_config') || '{}');
 
     return $self;
 }
@@ -108,13 +109,19 @@ sub ill_availability_services {
     };
 }
 
+# Return our name
+sub get_name {
+    my ($self) = @_;
+    return $self->{config}->{ill_avail_z3950_name} || 'z30.50';
+};
+
 sub get_available_z_target_ids {
     my ($self, $ui_context) = @_;
 
     # Receive a display context and iterate through the plugin's config
     # looking for targets that have been both selected and enabled in
     # this context
-    my $config = decode_json($self->retrieve_data('avail_config') || '{}');
+    my $config = $self->{config};
     my %id_hash = ();
     foreach my $key(%{$config}) {
         if (
@@ -150,10 +157,9 @@ sub configure {
     unless ( $cgi->param('save') ) {
 
         my $template = $self->get_template({ file => 'configure.tt' });
-        my $conf = $self->retrieve_data('avail_config') || '{}';
         $template->param(
             targets => scalar Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950::Api::get_z_targets(),
-            config => scalar decode_json($conf)
+            config => scalar $self->{config}
         );
 
         $self->output_html( $template->output() );
