@@ -29,7 +29,7 @@
                     <input type="checkbox" name="target_select_[% target_id %]" value="[% target_id %]">
                 [% END %]
                 <h4 class="ill_avail_target_name">[% target.servername %]</h4>
-                <div id="ill_avail_config_[% target_id %]">
+                <div id="ill_avail_config_container_[% target_id %]">
                     [% bibid_name = "ill_avail_config_bibid_$target_id" %]
                     [% opac_name  = "ill_avail_config_opac_$target_id" %]
                     [% link_name  = "ill_avail_config_link_$target_id" %]
@@ -38,45 +38,49 @@
                     [% display_staff = "ill_avail_config_display_staff_$target_id" %]
                     [% display_partner = "ill_avail_config_display_partners_$target_id" %]
                     <div id="ill_avail_field">
-                        <label for="[% bibid_name %]">Field / subfield for bib ID: </label><input placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
+                        <label for="[% bibid_name %]">Field / subfield for bib ID: </label>
+                        <input id="[% bibid_name %]" placeholder="e.g. 999$c" type="text" name="[% bibid_name %]" value="[% config.$bibid_name %]">
                         <p>This field / subfield combination must be present in the z39.50 response</p>
                     </div>
                     <div id="ill_avail_link">
-                        <label for="[% link_name %]">Deep link to catalogue record: </label><input placeholder="https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id" id="ill_avail_link_input" type="text" name="[% link_name %]" value="[% config.$link_name %]">
+                        <label for="[% link_name %]">Deep link to catalogue record: </label>
+                        <input id="[% link_name %]" placeholder="https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id" id="ill_avail_link_input" type="text" name="[% link_name %]" value="[% config.$link_name %]">
                         <p>This field enables the result to display links to the catalogue for each result. The "source_record_id" should be present where the bib ID would ordinarily be displayed in the URL. e.g. https://mykoha.com/cgi-bin/koha/opac-detail.pl?biblionumber=source_record_id</p>
                     </div>
                     <div id="ill_avail_opac">
-                        <label for="[% opac_name %]">OPAC URL: </label><input placeholder="https://mykoha.com" id="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
+                        <label for="[% opac_name %]">OPAC URL: </label>
+                        <input="[% opac_name %]" placeholder="https://mykoha.com" class="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
                         <p>The URL of the target's OPAC, this is used in the event that a deep link to a result cannot be created</p>
                     </div>
                     <div id="ill_avail_partner">
-                        <label for="[% partner_id %]">Partner ID: </label><input placeholder="e.g. 15" id="ill_avail_partner_input" type="text" name="[% partner_id %]" value="[% config.$partner_id %]">
+                        <label for="[% partner_id %]">Partner ID: </label>
+                        <input id="[% partner_id %]" placeholder="e.g. 15" class="ill_avail_partner_input" type="text" name="[% partner_id %]" value="[% config.$partner_id %]">
                         <p>If this target is associated with a borrower (for partner requests) enter the borrower ID here</p>
                     </div>
                     <div id="ill_avail_display_opac">
                         <label for="[% display_opac %]">Display results in OPAC: </label>
                         [% IF config.$display_opac %]
-                            <input type="checkbox" id="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]" checked>
+                            <input type="checkbox" id="[% display_opac %]" class="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]" checked>
                         [% ELSE %]
-                            <input type="checkbox" id="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]">
+                            <input type="checkbox" id="[% display_opac %]" class="ill_avail_display_opac_input" name="[% display_opac %]" value="[% target_id %]">
                         [% END %]
                         <p>Should results from this target be displayed when a user in the OPAC initiates request creation?</p>
                     </div>
                     <div id="ill_avail_display_staff">
                         <label for="[% display_staff %]">Display results in staff interface: </label>
                         [% IF config.$display_staff %]
-                            <input type="checkbox" id="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]" checked>
+                            <input type="checkbox" id="[% display_staff %]" class="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]" checked>
                         [% ELSE %]
-                            <input type="checkbox" id="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]">
+                            <input type="checkbox" id="[% display_staff %]" class="ill_avail_display_staff_input" name="[% display_staff %]" value="[% target_id %]">
                         [% END %]
                         <p>Should results from this target be displayed when a staff member initiates request creation?</p>
                     </div>
                     <div id="ill_avail_display_partner">
                         <label for="[% display_partner %]">Display results when making partner requests: </label>
                         [% IF config.$display_partner %]
-                            <input type="checkbox" id="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]" checked>
+                            <input type="checkbox" id="[% display_partner %]" class="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]" checked>
                         [% ELSE %]
-                            <input type="checkbox" id="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]">
+                            <input type="checkbox" id="[% display_partner %]" class="ill_avail_display_partner_input" name="[% display_partner %]" value="[% target_id %]">
                         [% END %]
                         <p>Should results from this target be displayed when staff member is about to place a request with partners?</p>
                     </div>
@@ -104,11 +108,11 @@
             var el = $(this);
             var input = el.find("[name*=target_select]");
             if (!input.is(':checked')) {
-                el.find("[id^=ill_avail_config_]").hide();
+                el.find("[id^=ill_avail_config_container_]").hide();
             }
         });
         $("input[name*='target_select']").on('click', function() {
-            var container = $('#ill_avail_config_'+$(this).attr('value'));
+            var container = $('#ill_avail_config_container_'+$(this).attr('value'));
             if ($(this).prop('checked')) {
                 container.show();
             } else {

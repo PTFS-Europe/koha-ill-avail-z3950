@@ -37,7 +37,7 @@ div#ill_avail_opac {
 }
 
 input#ill_avail_link_input,
-input#ill_avail_opac_input {
+input.ill_avail_opac_input {
     min-width: 500px;
 }
 
