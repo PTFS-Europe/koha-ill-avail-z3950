@@ -24,7 +24,10 @@ use List::Util qw ( any );
 use POSIX;
 
 use Mojo::Base 'Mojolicious::Controller';
+use C4::Context;
 use C4::Breeding qw( Z3950Search );
+use C4::Items qw( GetHiddenItemnumbers  );
+use Koha::Biblio;
 use Koha::Database;
 use Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950;
 
@@ -148,16 +151,24 @@ sub search {
         get_result_url($result, $servers, $config);
         # Now we try and populate an 'opac_url' field in each result
         get_opac_url($result, $servers, $config);
-        push @{$to_send}, {
-            title  => $result->{title},
-            author => $result->{author},
-            url    => $result->{url},
-            opac_url => $result->{opac_url},
-            isbn   => $result->{isbn},
-            issn   => $result->{issn},
-            source => $result->{server},
-            date   => $result->{date}
-        };
+        # Determine if we should return this result in the OPAC
+        my $hidden = $ui_context eq 'opac' && hidden_in_opac(
+            $result,
+            $servers,
+            $config
+        );
+        if (!$hidden) {
+            push @{$to_send}, {
+                title  => $result->{title},
+                author => $result->{author},
+                url    => $result->{url},
+                opac_url => $result->{opac_url},
+                isbn   => $result->{isbn},
+                issn   => $result->{issn},
+                source => $result->{server},
+                date   => $result->{date}
+            };
+        }
     }
 
     my $return_hashref = {
@@ -199,6 +210,36 @@ sub get_result_id {
         }
     }
     return $result;
+}
+
+# Only applies to Koha targets
+#
+# Given a result, determine if this item should be removed from the results
+# based on Koha's OpacHiddenItems syspref. If all this bib's results are
+# hidden, don't return this result
+sub hidden_in_opac {
+    my ( $result, $servers, $config ) = @_;
+    # First determine if this server needs results suppressing
+    my $server_id = get_server_id($result, $servers);
+    my $suppress = $config->{"ill_avail_config_suppress_${server_id}"};
+    # Now get the suppression rules
+    my $rules;
+    eval {
+        my $yaml = C4::Context->preference('OpacHiddenItems') . "\n\n";
+        $rules = YAML::Load($yaml);
+    };
+    if ($suppress && $result->{source_record_id}) {
+        # Return if this biblio should be provided in search results
+        my $biblio = Koha::Biblios->find( $result->{source_record_id} );
+        if (!$biblio) {
+            return 0;
+        }
+        return $biblio->hidden_in_opac({ rules => $rules }) ? 1 : 0;
+    } else {
+        # Either we are not suppressing or this biblio doesn't have a
+        # biblionumber, so we should return it
+        return 0;
+    }
 }
 
 # Given a result, using the result's target config try and contruct a link
