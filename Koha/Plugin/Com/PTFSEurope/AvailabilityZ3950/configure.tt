@@ -63,7 +63,7 @@
                     </div>
                     <div id="ill_avail_opac" class="ill_config_field">
                         <label for="[% opac_name %]">OPAC URL: </label>
-                        <input="[% opac_name %]" placeholder="https://mykoha.com" class="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
+                        <input id="[% opac_name %]" placeholder="https://mykoha.com" class="ill_avail_opac_input" type="text" name="[% opac_name %]" value="[% config.$opac_name %]">
                         <p>The URL of the target's OPAC, this is used in the event that a deep link to a result cannot be created</p>
                     </div>
                     <div id="ill_avail_partner" class="ill_config_field">
