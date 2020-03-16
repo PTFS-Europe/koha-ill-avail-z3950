@@ -17,7 +17,7 @@ use Digest::MD5 qw( md5_hex );
 use MIME::Base64 qw( decode_base64 );
 use URI::Escape qw ( uri_unescape );
 
-our $VERSION = "1.0.5";
+our $VERSION = "1.0.6";
 
 our $metadata = {
     name            => 'ILL availability - z39.50',
@@ -89,6 +89,13 @@ sub ill_availability_services {
         '/ill_availability_search_z3950?ui_context=' .
         $params->{ui_context} . '&metadata=';
 
+    # We need an array of partner IDs that are enabled
+    my $partner_ids = [];
+    foreach my $id(@{$ids}) {
+        my $partner_id = $self->get_partner_id($id);
+        push @{$partner_ids}, $partner_id if $partner_id;
+    }
+
     return {
         # Our service should have a reasonably unique ID
         # to differentiate it from other service that might be in use
@@ -98,6 +105,7 @@ sub ill_availability_services {
         plugin     => $self->{metadata}->{name},
         endpoint   => $endpoint,
         name       => $self->get_name(),
+        enabled    => $partner_ids,
         datatablesConfig => {
             serverSide   => 'true',
             processing   => 'true',
@@ -134,6 +142,16 @@ sub get_available_z_target_ids {
     }
     my @id_arr = map { $id_hash{$_} == 2 ? $_ : () } keys %id_hash;
     return \@id_arr;
+}
+
+sub get_partner_id {
+    my ($self, $target_id) = @_;
+
+    # For a given target ID, return the associated partner ID
+    # may be undef if one is not specified
+    my $config = $self->{config};
+    my $key = "ill_avail_config_partners_$target_id";
+    return $config->{$key} if $config->{$key};
 }
 
 sub api_routes {
