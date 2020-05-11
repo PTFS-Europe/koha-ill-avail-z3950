@@ -13,7 +13,7 @@
     <h3 id="ill_avail_config_h3">Koha: ILL availability z39.50: Configuration</h3>
 
 
-    <form id="ill_avail_configure" method="get">
+    <form id="ill_avail_configure" method="post">
         <h4>Available z39.50 targets</h4>
         <p>Select targets you wish you make available for availability searching</p>
         <input type="hidden" name="class" value="[% CLASS %]"/>
