@@ -17,13 +17,13 @@ use Digest::MD5 qw( md5_hex );
 use MIME::Base64 qw( decode_base64 );
 use URI::Escape qw ( uri_unescape );
 
-our $VERSION = "1.0.7";
+our $VERSION = "1.0.8";
 
 our $metadata = {
     name            => 'ILL availability - z39.50',
     author          => 'Andrew Isherwood',
     date_authored   => '2019-06-24',
-    date_updated    => "2020-02-17",
+    date_updated    => "2020-05-26",
     minimum_version => '18.11.00.000',
     maximum_version => undef,
     version         => $VERSION,

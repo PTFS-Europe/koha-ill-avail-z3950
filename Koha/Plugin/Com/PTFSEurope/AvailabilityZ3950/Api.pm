@@ -152,7 +152,7 @@ sub search {
         # Now we try and populate an 'opac_url' field in each result
         get_opac_url($result, $servers, $config);
         # Determine if we should return this result in the OPAC
-        my $hidden = $ui_context eq 'opac' && hidden_in_opac(
+        my $hidden = $ui_context eq 'opac' && bib_hidden_in_opac(
             $result,
             $servers,
             $config
@@ -217,13 +217,15 @@ sub get_result_id {
 # Given a result, determine if this item should be removed from the results
 # based on Koha's OpacHiddenItems syspref. If all this bib's results are
 # hidden, don't return this result
-sub hidden_in_opac {
+# This function is in part a copy/paste from 19.11 Koha::Biblio::hidden_in_opac
+# so we can retain < 19.11 compatibility
+sub bib_hidden_in_opac {
     my ( $result, $servers, $config ) = @_;
     # First determine if this server needs results suppressing
     my $server_id = get_server_id($result, $servers);
     my $suppress = $config->{"ill_avail_config_suppress_${server_id}"};
     # Now get the suppression rules
-    my $rules;
+    my $rules = {};
     eval {
         my $yaml = C4::Context->preference('OpacHiddenItems') . "\n\n";
         $rules = YAML::Load($yaml);
@@ -234,12 +236,43 @@ sub hidden_in_opac {
         if (!$biblio) {
             return 0;
         }
-        return $biblio->hidden_in_opac({ rules => $rules }) ? 1 : 0;
+
+		my @items = $biblio->items->as_list;
+		return 0 unless @items;
+
+        return !(any { !item_hidden_in_opac({ rules => $rules, item => $_ }) } @items);
     } else {
         # Either we are not suppressing or this biblio doesn't have a
         # biblionumber, so we should return it
         return 0;
     }
+}
+
+# Only applies to Koha targets
+#
+# Given an item, determine if this item should be removed from the results
+# This function is essentially a copy/paste from 19.11 Koha::Item::hidden_in_opac
+# so we can retain < 19.11 compatibility
+sub item_hidden_in_opac {
+	my ( $params ) = @_;
+
+	my $rules = $params->{rules} // {};
+	my $item = $params->{item};
+
+	return 1
+	if C4::Context->preference('hidelostitems') and
+		$item->itemlost > 0;
+
+	my $hidden_in_opac = 0;
+
+	foreach my $field ( keys %{$rules} ) {
+		if ( any { $item->$field eq $_ } @{ $rules->{$field} } ) {
+			$hidden_in_opac = 1;
+			last;
+		}
+	}
+
+	return $hidden_in_opac;
 }
 
 # Given a result, using the result's target config try and contruct a link
