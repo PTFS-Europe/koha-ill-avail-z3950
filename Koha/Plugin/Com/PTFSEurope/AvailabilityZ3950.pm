@@ -6,7 +6,6 @@ use base qw( Koha::Plugins::Base );
 use Koha::DateUtils qw( dt_from_string );
 use Koha::Database;
 use C4::Breeding qw( Z3950Search );
-use Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950::Api;
 
 use Cwd qw( abs_path );
 use CGI;
@@ -17,13 +16,13 @@ use Digest::MD5 qw( md5_hex );
 use MIME::Base64 qw( decode_base64 );
 use URI::Escape qw ( uri_unescape );
 
-our $VERSION = "1.0.8";
+our $VERSION = "1.0.9";
 
 our $metadata = {
     name            => 'ILL availability - z39.50',
     author          => 'Andrew Isherwood',
     date_authored   => '2019-06-24',
-    date_updated    => "2020-05-26",
+    date_updated    => "2023-05-10",
     minimum_version => '18.11.00.000',
     maximum_version => undef,
     version         => $VERSION,
@@ -124,6 +123,18 @@ sub get_name {
     return $self->{config}->{ill_avail_z3950_name} || 'z30.50';
 };
 
+sub get_z_targets {
+    my ( $ids ) = @_;
+
+    my $where = $ids ? { id => $ids } : {};
+    # Get the details of the servers we're querying
+    # We may be filtering based on the server IDs we've been passed
+    my $schema = Koha::Database->new()->schema();
+    my $rs = $schema->resultset('Z3950server')->search($where);
+    my @servers = $rs->all;
+    return \@servers;
+}
+
 sub get_available_z_target_ids {
     my ($self, $ui_context) = @_;
 
@@ -177,7 +188,7 @@ sub configure {
 
         my $template = $self->get_template({ file => 'configure.tt' });
         $template->param(
-            targets => scalar Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950::Api::get_z_targets(),
+            targets => scalar get_z_targets(),
             config => scalar $self->{config}
         );
 

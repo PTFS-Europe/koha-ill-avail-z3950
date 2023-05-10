@@ -83,7 +83,7 @@ sub search {
     }
 
     # Now get the full details of each target
-    my $servers = get_z_targets(\@targets_to_search);
+    my $servers = $plugin->get_z_targets(\@targets_to_search);
 
     # Try and calculate what page we're on
     my $page = $start == 0 ? 1 : floor($start / $pageLength) + 1;
@@ -297,18 +297,6 @@ sub get_opac_url {
         $result->{opac_url} = $opac;
     }
     return $result;
-}
-
-sub get_z_targets {
-    my ( $ids ) = @_;
-
-    my $where = $ids ? { id => $ids } : {};
-    # Get the details of the servers we're querying
-    # We may be filtering based on the server IDs we've been passed
-    my $schema = Koha::Database->new()->schema();
-    my $rs = $schema->resultset('Z3950server')->search($where);
-    my @servers = $rs->all;
-    return \@servers;
 }
 
 # Contained MockTemplate object is a compatability shim used so we can pass
