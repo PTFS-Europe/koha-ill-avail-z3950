@@ -82,7 +82,7 @@ sub search {
     }
 
     # Now get the full details of each target
-    my $servers = $plugin->get_z_targets(\@targets_to_search);
+    my $servers = Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950::get_z_targets(\@targets_to_search);
 
     # Try and calculate what page we're on
     my $page = $start == 0 ? 1 : floor($start / $pageLength) + 1;
