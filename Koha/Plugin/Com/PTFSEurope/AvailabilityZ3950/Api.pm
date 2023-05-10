@@ -26,7 +26,6 @@ use POSIX;
 use Mojo::Base 'Mojolicious::Controller';
 use C4::Context;
 use C4::Breeding qw( Z3950Search );
-use C4::Items qw( GetHiddenItemnumbers  );
 use Koha::Biblio;
 use Koha::Database;
 use Koha::Plugin::Com::PTFSEurope::AvailabilityZ3950;
