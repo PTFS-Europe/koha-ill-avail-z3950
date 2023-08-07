@@ -1,6 +1,56 @@
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha: Availability z39.50 Plugin: Configuration</title>
-<link rel="stylesheet" type="text/css" href="[% PLUGIN_PATH %]/illavailability.css"></link>
+<style>
+#ill_avail_config_h3 {
+    margin: 20px;
+}
+
+.ill_avail_config_field {
+	padding: 20px 10px;
+	margin: 20px 0;
+	background: #eee;
+	border-radius: 10px;
+	list-style: none;
+}
+
+li.ill_avail_target_list {
+    padding: 20px 10px;
+    margin: 20px 0;
+    background: #eee;
+    border-radius: 10px;
+    list-style: none;
+}
+
+#ill_avail_configure {
+	display: block;
+	margin: 20px;
+}
+
+#ill_avail_configure ul {
+	padding-left: 0;
+}
+
+h4.ill_avail_target_name {
+    display: inline-block;
+}
+
+div[id^="ill_avail_config_"] {
+    margin-top: 20px;
+}
+
+div.ill_config_field {
+    margin-bottom: 20px;
+}
+
+input#ill_avail_link_input,
+input.ill_avail_opac_input {
+    min-width: 500px;
+}
+
+#ill_avail_upgrade {
+    margin: 20px;
+}
+</style>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 <body>
